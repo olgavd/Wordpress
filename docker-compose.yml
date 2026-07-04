@@ -1,0 +1,68 @@
+services:
+  db:
+    image: mysql:latest
+    container_name: db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./srv/db:/var/lib/mysql
+    ports:
+      - "3366:3306"
+    networks:
+      - network
+
+  php:
+    image: wordpress:fpm
+    container_name: php
+    restart: always
+    volumes:
+      - ./srv/www:/var/www/html
+      - ./themes/:/var/www/html/wp-content/themes/
+      - ./plugins/:/var/www/html/wp-content/plugins/
+      - ./mu-plugins/:/var/www/html/wp-content/mu-plugins/
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: user
+      WORDPRESS_DB_PASSWORD: password
+    depends_on:
+      - db
+    networks:
+      - network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - ./srv/www:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: pma
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+      - network
+
+volumes:
+  db:
+
+networks:
+  network:
+    driver: bridge
