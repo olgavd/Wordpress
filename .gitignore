@@ -1,0 +1,9 @@
+.idea
+docker-compose.yml
+/.srv/*
+/plugins/akismet
+/plugins/hello.php
+/themes/twentytwentyfive
+/themes/twentytwentyfour
+/themes/twentytwentythree
+/nginx/default.conf
